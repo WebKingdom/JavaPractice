@@ -4,20 +4,25 @@ import java.util.*;
 
 public class Main {
 
-    class ListPair {
+    public static class ListPair {
         public ArrayList<Integer> aList;
         public int numPermutations;
 
         public ListPair() {
             aList = new ArrayList<Integer>();
-            numPermutations = 0;
+            numPermutations = 1;
+        }
+
+        public ListPair(ArrayList<Integer> al, int n) {
+            aList = al;
+            numPermutations = n;
         }
     }
 
     public static void main(String[] args) {
         ArrayList<Integer> al = new ArrayList<>();
         al.add(-5);
-        al.add(2);
+        al.add(4);
 //        al.add(1);
 //        al.add(-1);
 
@@ -25,10 +30,10 @@ public class Main {
     }
 
     private static void Elevator(int n, List<Integer> B, int i, int j) {
-        HashMap<Integer, List> hm = new HashMap<>();
-        ArrayList<Integer> al = new ArrayList<>();
-        al.add(0, i);
-        hm.put(i, al);
+        HashMap<Integer, ListPair> hm = new HashMap<>();
+        ListPair lp = new ListPair();
+        lp.aList.add(0, i);
+        hm.put(i, lp);
 
         // set of visited floors
         HashSet<Integer> hsVisited = new HashSet<>();
@@ -47,15 +52,21 @@ public class Main {
                 for (int k = 0; k < B.size(); k++) {        // O(B) (number of buttons)
                     int nextFloor = curKey + B.get(k);
 
+                    // check if number of permutations needs to be increased
+                    if (hm.containsKey(nextFloor)) {
+                        hm.replace(nextFloor, new ListPair(hm.get(nextFloor).aList, hm.get(curKey).numPermutations + 1));
+                        floorsAdded++;
+                    }
+
                     // next floor must be between [1-n] and should not be a visited floor
                     if (nextFloor <= n && nextFloor > 0 && !hsVisited.contains(nextFloor)) {
                         // Get all list values of curKey then update it with nextFloor
-                        List<Integer> temp = new ArrayList<>();
-                        temp.addAll(hm.get(curKey));        // O(1) (get list corresponding to key)
+                        ArrayList<Integer> temp = new ArrayList<>();
+                        temp.addAll(hm.get(curKey).aList);        // O(1) (get list corresponding to key)
 
                         temp.add(0, nextFloor);       // O(1)
                         // put new key, value pair in hashmap
-                        hm.put(nextFloor, temp);            // O(1)
+                        hm.put(nextFloor, new ListPair(temp, hm.get(curKey).numPermutations));            // O(1)
 
                         // put new key in hsVisited
                         hsVisited.add(nextFloor);
@@ -67,12 +78,11 @@ public class Main {
         }
 
         if (hm.containsKey(j)) {
-            // Print out sequence of buttons (could have method to iterate through floor and get buttons)
-            System.out.println(hm.get(j));
+            // Get shortest sequence of button presses
+            printButtons(hm.get(j).aList);
 
-            // TODO
-            // Get number sequences
-            printButtons(hm.get(j));
+            // Print number of sequences of button presses
+            System.out.println(hm.get(j).numPermutations);
         } else {
             System.out.println("NO");
         }
