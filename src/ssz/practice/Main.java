@@ -3,6 +3,8 @@ package ssz.practice;
 import java.util.*;
 
 public class Main {
+    // For Question 2
+    private static int[][] memTable;
 
     public static class ListPair {
         public ArrayList<Integer> aList;
@@ -20,13 +22,40 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        // Question 1:
         ArrayList<Integer> al = new ArrayList<>();
         al.add(-5);
         al.add(4);
 //        al.add(1);
 //        al.add(-1);
+//        Elevator(72, al, 17, 16);
 
-        Elevator(72, al, 17, 16);
+
+        // Question 2:
+        int n = 3;
+        int m = 4;
+        memTable = new int[n + 1][m + 1];
+
+        for (int i = 0; i < n + 1; i++) {
+            for (int j = 0; j < m + 1; j++) {
+                memTable[i][j] = -1;
+            }
+        }
+
+        String winner = "No winning strategy";
+        int result = -1;
+
+        if ((n >= 2 && m >= 1) || (n >= 1 && m >= 2)) {
+            result = CookieGame2(n, m, 1);
+        }
+
+        if (result == 1) {
+            winner = "Riley";
+        } else if (result == 0) {
+            winner = "Morgan";
+        }
+
+        System.out.println("Q2 Answer: " + winner);
     }
 
     private static void Elevator(int n, List<Integer> B, int i, int j) {
@@ -98,4 +127,40 @@ public class Main {
         }
         System.out.println(result);
     }
+
+    private static int CookieGame2(int n, int m, int player) {
+        if ((n <= 0 || m <= 0) || (n <= 1 && m <= 1)) {
+            return (player == 1) ? 0 : 1;
+        }
+
+        if (memTable[n][m] != -1) {
+            return memTable[n][m];
+        }
+
+        player = (player == 1) ? 0 : 1;
+        int choice1 = CookieGame2(n - 2, m - 1, player);
+        int choice2 = CookieGame2(n - 1, m - 2, player);
+//        memTable[n][m] = Math.max(choice1, choice2);
+
+        return memTable[n][m] = Math.max(choice1, choice2);
+    }
+
+    private static int CookieGame(int n, int m) {
+        if (n < 0 || m < 0) {
+            return 1;
+        }
+
+        if ((n == 0 || m == 0) || (m == 1 && n == 1)) {
+            return 0;
+        }
+
+        if (memTable[n][m] != -1) {
+            return memTable[n][m];
+        }
+
+        memTable[n][m] = Math.max(CookieGame(n - 2, m - 1), CookieGame(n - 1, m - 2));
+
+        return memTable[n][m];
+    }
+
 }
