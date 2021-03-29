@@ -25,10 +25,10 @@ public class Main {
         // Question 1:
         ArrayList<Integer> al = new ArrayList<>();
         al.add(-5);
-        al.add(4);
+        al.add(2);
 //        al.add(1);
 //        al.add(-1);
-//        Elevator(72, al, 17, 16);
+        Elevator(72, al, 17, 16);
 
 
         // Question 2:
@@ -93,7 +93,7 @@ public class Main {
                         ArrayList<Integer> temp = new ArrayList<>();
                         temp.addAll(hm.get(curKey).aList);        // O(1) (get list corresponding to key)
 
-                        temp.add(0, nextFloor);       // O(1)
+                        temp.add(nextFloor);       // O(1)
                         // put new key, value pair in hashmap
                         hm.put(nextFloor, new ListPair(temp, hm.get(curKey).numPermutations));            // O(1)
 
@@ -110,6 +110,9 @@ public class Main {
             // Get shortest sequence of button presses
             printButtons(hm.get(j).aList);
 
+            // print sequence of floors
+            System.out.println(hm.get(j).aList);
+
             // Print number of sequences of button presses
             System.out.println(hm.get(j).numPermutations);
         } else {
@@ -122,7 +125,7 @@ public class Main {
         int prev = l.get(0);
         for (int i = 1; i < l.size(); i++) {
             int cur = l.get(i);
-            result.add(prev - cur);
+            result.add(cur - prev);
             prev = cur;
         }
         System.out.println(result);
