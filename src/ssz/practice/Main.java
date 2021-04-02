@@ -24,16 +24,21 @@ public class Main {
     public static void main(String[] args) {
         // Question 1:
         ArrayList<Integer> al = new ArrayList<>();
-        al.add(-5);
-        al.add(2);
+//        al.add(-2);
+//        al.add(-7);
+//        al.add(2);
+//        al.add(7);
+        al.add(10);
+
 //        al.add(1);
-//        al.add(-1);
-        Elevator(72, al, 17, 16);
+        al.add(3);
+        al.add(-2);
+        Elevator(11, al, 1, 11);
 
 
         // Question 2:
-        int n = 3;
-        int m = 4;
+        int n = 50;     // red cookies
+        int m = 2;      // green cookies
         memTable = new int[n + 1][m + 1];
 
         for (int i = 0; i < n + 1; i++) {
@@ -59,9 +64,10 @@ public class Main {
     }
 
     private static void Elevator(int n, List<Integer> B, int i, int j) {
+        // Create HashMap for storing current floor possibilities with a sequence to get there and numPermutations
         HashMap<Integer, ListPair> hm = new HashMap<>();
         ListPair lp = new ListPair();
-        lp.aList.add(0, i);
+        lp.aList.add(i);
         hm.put(i, lp);
 
         // set of visited floors
@@ -69,10 +75,10 @@ public class Main {
         hsVisited.add(i);
 
         int floorsAdded = 1;
-        while (!hm.containsKey(j) && floorsAdded > 0) {     // O(n) ?
+        while (!hm.containsKey(j) && floorsAdded > 0) {     // O(lg(n)) ?
             floorsAdded = 0;
 
-            // Go through all keys in hashmap (all possible elevator levels)
+            // Go through all keys in hashmap (possible elevator levels reached by button presses)
             Object[] arr = hm.keySet().toArray();
             for (int l = 0; l < arr.length; l++) {          // O(n) (number of levels)
                 int curKey = Integer.parseInt(arr[l].toString());
@@ -83,7 +89,8 @@ public class Main {
 
                     // check if number of permutations needs to be increased
                     if (hm.containsKey(nextFloor)) {
-                        hm.replace(nextFloor, new ListPair(hm.get(nextFloor).aList, hm.get(curKey).numPermutations + 1));
+                        hm.replace(nextFloor, new ListPair(hm.get(nextFloor).aList,
+                                hm.get(curKey).numPermutations + hm.get(nextFloor).numPermutations));
                         floorsAdded++;
                     }
 
