@@ -37,26 +37,34 @@ public class Main {
 
 
         // Question 2:
-        int n = 50;     // red cookies
-        int m = 2;      // green cookies
+        int n = 4;     // red cookies
+        int m = 4;      // green cookies
+        // TODO used for CookieGame1 and 2
         memTable = new int[n + 1][m + 1];
-
-        for (int i = 0; i < n + 1; i++) {
-            for (int j = 0; j < m + 1; j++) {
-                memTable[i][j] = -1;
-            }
-        }
+//        for (int i = 0; i < n + 1; i++) {
+//            for (int j = 0; j < m + 1; j++) {
+//                memTable[i][j] = -1;
+//            }
+//        }
 
         String winner = "No winning strategy";
-        int result = -1;
+        int resultR = CookieGame(n, m);
+        int resultM = -1;
 
-        if ((n >= 2 && m >= 1) || (n >= 1 && m >= 2)) {
-            result = CookieGame2(n, m, 1);
-        }
+//        if ((n >= 2 && m >= 1) || (n >= 1 && m >= 2)) {
+//            resultR = CookieGame2(n, m, 1);
+//            // reset memTable
+//            for (int i = 0; i < n + 1; i++) {
+//                for (int j = 0; j < m + 1; j++) {
+//                    memTable[i][j] = -1;
+//                }
+//            }
+//            resultM = CookieGame1(n, m, 1);
+//        }
 
-        if (result == 1) {
+        if (resultR == 1) {
             winner = "Riley";
-        } else if (result == 0) {
+        } else if (resultR == 0) {
             winner = "Morgan";
         }
 
@@ -150,9 +158,26 @@ public class Main {
         player = (player == 1) ? 0 : 1;
         int choice1 = CookieGame2(n - 2, m - 1, player);
         int choice2 = CookieGame2(n - 1, m - 2, player);
-//        memTable[n][m] = Math.max(choice1, choice2);
+        memTable[n][m] = Math.max(choice1, choice2);
 
-        return memTable[n][m] = Math.max(choice1, choice2);
+        return memTable[n][m];
+    }
+
+    private static int CookieGame1(int n, int m, int player) {
+        if ((n <= 0 || m <= 0) || (n <= 1 && m <= 1)) {
+            return (player == 1) ? 0 : 1;
+        }
+
+        if (memTable[n][m] != -1) {
+            return memTable[n][m];
+        }
+
+        player = (player == 1) ? 0 : 1;
+        int choice1 = CookieGame1(n - 2, m - 1, player);
+        int choice2 = CookieGame1(n - 1, m - 2, player);
+        memTable[n][m] = Math.min(choice1, choice2);
+
+        return memTable[n][m];
     }
 
     private static int CookieGame(int n, int m) {
@@ -164,11 +189,14 @@ public class Main {
             return 0;
         }
 
-        if (memTable[n][m] != -1) {
-            return memTable[n][m];
+        if (memTable[n][m] == 1) {
+            return 1;
         }
 
-        memTable[n][m] = Math.max(CookieGame(n - 2, m - 1), CookieGame(n - 1, m - 2));
+        // TODO maybe don't need -3 part?
+        memTable[n][m] = Math.max(Math.min(CookieGame(n - 4, m - 2), CookieGame(n - 3, m - 3)),
+                Math.min(CookieGame(n - 2, m - 4), CookieGame(n - 3, m - 3)));
+//        memTable[n][m] = Math.max(CookieGame(n - 2, m - 1), CookieGame(n - 1, m - 2));
 
         return memTable[n][m];
     }
