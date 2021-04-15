@@ -9,13 +9,15 @@ import java.util.HashSet;
 public class HW4_Prb2 {
 
     public static void main(String[] args) {
-        String inStr = "0110111001";
+        String inStr = "10111010101111101";
         int len = inStr.length();
 
         int arr[][] = new int[len][len];
 
         // Set for a language starting with 0 and then 1s
         HashSet<String> L = new HashSet<>();
+        L.add("1");
+
         L.add("01");
         L.add("011");
         L.add("0111");
@@ -48,38 +50,65 @@ public class HW4_Prb2 {
     }
 
     private static void method2(String inStr, HashSet<String> L, int[][] arr) {
+        if (L.contains(inStr)) {
+            System.out.println("Accept");
+            return;
+        }
+
         int len = inStr.length();
         // stores last connected vertex, so we can find path from vertex 0 to n
         int k = 0;
+        ArrayList<Integer> path = new ArrayList<>();
 
         for (int i = 0; i < len; i++) {
             // saves the last index of the largest substring found in inStr
             int lastSubStr = i;
+            // determines if a substring was contained in set L
+            boolean subStrContained = false;
 
             for (int j = i; j < len; j++) {
 
                 String temp = inStr.substring(i, j + 1);
                 if (L.contains(temp)) {
+                    subStrContained = true;
+
                     arr[i][j] = 1;
                     arr[j][i] = 1;
 
                     arr[k][j] = 1;
                     arr[j][k] = 1;
-                    k = i;
+
                     lastSubStr = j;
+                    if (k != lastSubStr) {
+                        if (path.isEmpty()) {
+                            path.add(k);
+                            path.add(lastSubStr);
+                        } else if (path.get(path.size() - 1) < lastSubStr) {
+                            path.add(lastSubStr);
+                        }
+                    }
+                    k = i;
                 }
             }
 
-            if (lastSubStr == i) {
-                // if substring was not contained in L,
-                // set k to next i (last possible connected vertex)
-                k = i + 1;
-            } else {
+            if (subStrContained) {
                 // increment i by index of lastSubStr because we
                 // already know longest substring in this iteration
                 i = lastSubStr;
+            } else {
+                // if substring was not contained in L,
+                // set k to next i (last possible connected vertex)
+                k = i + 1;
             }
         }
+
+        // Accept if there is a path from vertex 0 to len
+        if ( !path.isEmpty() && (path.get(0) == 0) && (path.get(path.size() - 1) == len - 1) ) {
+            System.out.println("Accept");
+        } else {
+            System.out.println("Reject");
+        }
+        System.out.println("Path is:" + path);
 
         // print adjacency matrix
         for (int i = 0; i < len; i++) {
@@ -94,13 +123,6 @@ public class HW4_Prb2 {
                     System.out.print(arr[i][j] + ", ");
                 }
             }
-        }
-
-        // TODO Accept if there is a path from vertex 0 to n
-        if (arr[0][len - 1] == 1) {
-            System.out.println("Accept");
-        } else {
-            System.out.println("Reject");
         }
     }
 
