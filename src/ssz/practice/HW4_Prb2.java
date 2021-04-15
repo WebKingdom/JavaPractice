@@ -8,11 +8,33 @@ import java.util.HashSet;
 // EX: if inStr = "11" then not in L*
 public class HW4_Prb2 {
 
+    public static class APair {
+        private int val;
+        private boolean visited;
+
+        public APair() {
+            val = 0;
+            visited = false;
+        }
+
+        public APair(int n, boolean vis) {
+            val = n;
+            visited = vis;
+        }
+    }
+
     public static void main(String[] args) {
-        String inStr = "10111010101111101";
+        String inStr = "110";
         int len = inStr.length();
 
         int arr[][] = new int[len][len];
+        APair[][] dp = new APair[len][len];
+
+        for (int i = 0; i < len; i++) {
+            for (int j = 0; j < len; j++) {
+                dp[i][j] = new APair(0, false);
+            }
+        }
 
         // Set for a language starting with 0 and then 1s
         HashSet<String> L = new HashSet<>();
@@ -47,6 +69,62 @@ public class HW4_Prb2 {
         // continue with concatenations
 
         method2(inStr, L, arr);
+        System.out.println();
+
+        method3(inStr, L, dp, 0, len - 1);
+
+        // print adjacency matrix
+        for (int i = 0; i < len; i++) {
+            for (int j = 0; j < len; j++) {
+                if (j == len - 1) {
+                    System.out.println(dp[i][j].val);
+                }
+                else {
+                    if (j == 0) {
+                        System.out.printf("%2d: ", i);
+                    }
+                    System.out.print(dp[i][j].val + ", ");
+                }
+            }
+        }
+    }
+
+    private static int method3(String x, HashSet L, APair[][] dp, int i, int j) {
+        if (j - i < 0) {
+            return i;
+        }
+        if (dp[i][j].visited) {    // If dp[i][j] is visited do not check again
+            return j;
+        }
+
+        if (L.contains(x.substring(i, j + 1))) {
+            dp[i][j].val = 1;
+            dp[i][j].visited = true;
+            dp[j][i].val = 1;
+            dp[j][i].visited = true;
+//            if (j - i == 0) {
+//                return i;
+//            }
+            return j;
+        }
+
+        int temp = method3(x, L, dp, i, j - 1);
+        if (temp != i) {
+            dp[i][j].val = 1;
+            dp[i][j].visited = true;
+            dp[j][i].val = 1;
+            dp[j][i].visited = true;
+            i = temp;
+        }
+        j = method3(x, L, dp, i + 1, j);
+        if (i != j) {
+            dp[i][j].val = 1;
+            dp[i][j].visited = true;
+            dp[j][i].val = 1;
+            dp[j][i].visited = true;
+        }
+
+        return dp[i][j].val;
     }
 
     private static void method2(String inStr, HashSet<String> L, int[][] arr) {
@@ -60,13 +138,13 @@ public class HW4_Prb2 {
         int k = 0;
         ArrayList<Integer> path = new ArrayList<>();
 
-        for (int i = 0; i < len; i++) {
+        for (int i = 0; i < len; i++) {     // c*n
             // saves the last index of the largest substring found in inStr
             int lastSubStr = i;
             // determines if a substring was contained in set L
             boolean subStrContained = false;
 
-            for (int j = i; j < len; j++) {
+            for (int j = i; j < len; j++) { // c*n*(n - i)
 
                 String temp = inStr.substring(i, j + 1);
                 if (L.contains(temp)) {
