@@ -24,7 +24,7 @@ public class HW4_Prb2 {
     }
 
     public static void main(String[] args) {
-        String inStr = "110";
+        String inStr = "0100000110";
         int len = inStr.length();
 
         int arr[][] = new int[len][len];
@@ -32,13 +32,17 @@ public class HW4_Prb2 {
 
         for (int i = 0; i < len; i++) {
             for (int j = 0; j < len; j++) {
+
                 dp[i][j] = new APair(0, false);
             }
         }
 
         // Set for a language starting with 0 and then 1s
         HashSet<String> L = new HashSet<>();
-        L.add("1");
+        L.add("00000");
+        L.add("11111");
+        L.add("00");
+        L.add("11");
 
         L.add("01");
         L.add("011");
@@ -68,40 +72,47 @@ public class HW4_Prb2 {
         L2.add("011101111");
         // continue with concatenations
 
-        method2(inStr, L, arr);
-        System.out.println();
+        method1(inStr, L, arr);
 
-        method3(inStr, L, dp, 0, len - 1);
+//        method2(inStr, L, arr);
+//        System.out.println();
+//
+//        arr = new int[len][len];
+//        findx(inStr, L, arr);
+
+//        method3(inStr, L, dp, 0, len - 1);
 
         // print adjacency matrix
-        for (int i = 0; i < len; i++) {
-            for (int j = 0; j < len; j++) {
-                if (j == len - 1) {
-                    System.out.println(dp[i][j].val);
-                }
-                else {
-                    if (j == 0) {
-                        System.out.printf("%2d: ", i);
-                    }
-                    System.out.print(dp[i][j].val + ", ");
-                }
-            }
-        }
+//        for (int i = 0; i < len; i++) {
+//            for (int j = 0; j < len; j++) {
+//                if (j == len - 1) {
+//                    System.out.println(dp[i][j].val);
+//                }
+//                else {
+//                    if (j == 0) {
+//                        System.out.printf("%2d: ", i);
+//                    }
+//                    System.out.print(dp[i][j].val + ", ");
+//                }
+//            }
+//        }
     }
 
-    private static int method3(String x, HashSet L, APair[][] dp, int i, int j) {
-        if (j - i < 0) {
+    private static int method3(String x, HashSet<String> L, APair[][] dp, int i, int j) {
+        int dpj = Math.min(j + 1, x.length() - 1);
+
+        if (j < i) {
             return i;
         }
-        if (dp[i][j].visited) {    // If dp[i][j] is visited do not check again
+        if (dp[i][dpj].visited) {    // If dp[i][j] is visited do not check again
             return j;
         }
 
         if (L.contains(x.substring(i, j + 1))) {
-            dp[i][j].val = 1;
-            dp[i][j].visited = true;
-            dp[j][i].val = 1;
-            dp[j][i].visited = true;
+            dp[i][dpj].val = 1;
+            dp[i][dpj].visited = true;
+            dp[dpj][i].val = 1;
+            dp[dpj][i].visited = true;
 //            if (j - i == 0) {
 //                return i;
 //            }
@@ -116,37 +127,93 @@ public class HW4_Prb2 {
             dp[j][i].visited = true;
             i = temp;
         }
-        j = method3(x, L, dp, i + 1, j);
-        if (i != j) {
-            dp[i][j].val = 1;
-            dp[i][j].visited = true;
-            dp[j][i].val = 1;
-            dp[j][i].visited = true;
-        }
+        method3(x, L, dp, i + 1, j);
+//        if (i != j) {
+//            dp[i][j].val = 1;
+//            dp[i][j].visited = true;
+//            dp[j][i].val = 1;
+//            dp[j][i].visited = true;
+//        }
 
-        return dp[i][j].val;
+        return dp[x.length() - 1][x.length() - 1].val;
     }
 
-    private static void method2(String inStr, HashSet<String> L, int[][] arr) {
-        if (L.contains(inStr)) {
+    private static void findx(String x, HashSet<String> L, int[][] arr) {
+        if (L.contains(x)) {
             System.out.println("Accept");
             return;
         }
 
-        int len = inStr.length();
+        int len = x.length();
         // stores last connected vertex, so we can find path from vertex 0 to n
         int k = 0;
         ArrayList<Integer> path = new ArrayList<>();
 
         for (int i = 0; i < len; i++) {     // c*n
-            // saves the last index of the largest substring found in inStr
+            // determines if a substring was contained in set L
+            boolean subStrContained = false;
+
+            for (int j = len - 1; j >= i; j--) {
+                String subStr = x.substring(i, j + 1);
+
+                if (L.contains(subStr)) {
+                    subStrContained = true;
+
+                    if (k != j) {
+                        if (path.isEmpty()) {
+                            path.add(k);
+                            path.add(j);
+                        } else if (path.get(path.size() - 1) < j) {
+                            path.add(j);
+                        }
+                    }
+                    arr[i][j] = 1;
+                    arr[j][i] = 1;
+
+                    arr[k][j] = 1;
+                    arr[j][k] = 1;
+                    k = i;
+                    i = j;
+                }
+            }
+
+            if (!subStrContained) {
+                // if substring was not contained in L,
+                // set k to next i (last possible connected vertex)
+                k = i + 1;
+            }
+        }
+
+        // Accept if there is a path from vertex 0 to len
+        if ( !path.isEmpty() && (path.get(0) == 0) && (path.get(path.size() - 1) == len - 1) ) {
+            System.out.println("Accept");
+        } else {
+            System.out.println("Reject");
+        }
+        System.out.println("Path is:" + path);
+
+        printArr(arr);
+    }
+
+    private static void method2(String x, HashSet<String> L, int[][] arr) {
+        if (L.contains(x)) {
+            System.out.println("Accept");
+            return;
+        }
+
+        int len = x.length();
+        // stores last connected vertex, so we can find path from vertex 0 to n
+        int k = 0;
+
+        for (int i = 0; i < len; i++) {     // c*n
+            // saves the last index of the largest substring found in x
             int lastSubStr = i;
             // determines if a substring was contained in set L
             boolean subStrContained = false;
 
             for (int j = i; j < len; j++) { // c*n*(n - i)
 
-                String temp = inStr.substring(i, j + 1);
+                String temp = x.substring(i, j + 1);
                 if (L.contains(temp)) {
                     subStrContained = true;
 
@@ -157,14 +224,6 @@ public class HW4_Prb2 {
                     arr[j][k] = 1;
 
                     lastSubStr = j;
-                    if (k != lastSubStr) {
-                        if (path.isEmpty()) {
-                            path.add(k);
-                            path.add(lastSubStr);
-                        } else if (path.get(path.size() - 1) < lastSubStr) {
-                            path.add(lastSubStr);
-                        }
-                    }
                     k = i;
                 }
             }
@@ -181,13 +240,11 @@ public class HW4_Prb2 {
         }
 
         // Accept if there is a path from vertex 0 to len
-        if ( !path.isEmpty() && (path.get(0) == 0) && (path.get(path.size() - 1) == len - 1) ) {
-            System.out.println("Accept");
-        } else {
-            System.out.println("Reject");
-        }
-        System.out.println("Path is:" + path);
+        printArr(arr);
+    }
 
+    private static void printArr(int[][] arr) {
+        int len = arr.length;
         // print adjacency matrix
         for (int i = 0; i < len; i++) {
             for (int j = 0; j < len; j++) {
@@ -209,10 +266,11 @@ public class HW4_Prb2 {
 
         if (inStr.isEmpty()) {
             System.out.println("Accept");
+            return;
         }
 
         for (int i = 0; i < len; i++) {
-            if ( L.contains(Character.toString(inStr.charAt(0))) ) {
+            if ( L.contains(Character.toString(inStr.charAt(i))) ) {
                 arr[i][i] = 1;
             }
         }
@@ -223,11 +281,11 @@ public class HW4_Prb2 {
 
                 String temp = inStr.substring(i, j + 1);
                 if (L.contains(temp)) {
-                    arr[i][i] = 1;
+                    arr[i][j] = 1;
                 }
 
-                for (int k = i; k <= (j - 1); k++) {
-                    if (arr[i][k] == 1 && arr[k][j] == 1) {
+                for (int k = i; k < j; k++) {
+                    if (arr[i][k] == 1 && arr[k + 1][j] == 1) {
                         arr[i][j] = 1;
                     }
                 }
