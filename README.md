@@ -1,2 +1,2 @@
 # JavaPractice
-Private repository for Java practice problems or homework
+Repository for Java practice problems or homework
